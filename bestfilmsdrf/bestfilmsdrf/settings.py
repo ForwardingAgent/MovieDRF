@@ -11,14 +11,11 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-#import environ
 import os
 
-#env = environ.Env()
-
 from dotenv import load_dotenv
-env_path = Path(' . ') / '.env'
-load_dotenv(dotenv_path=env_path)
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,8 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0cc9*7x)%tj#+s&&r==7s&j-6&um3@v34#b%p5mh+^*ly^85*='
-# SECRET_KEY = os.environ.get('SECRET_KEY')
+# SECRET_KEY = 'django-insecure-0cc9*7x)%tj#+s&&r==7s&j-6&um3@v34#b%p5mh+^*ly^85*='
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -49,6 +46,9 @@ INSTALLED_APPS = [
 
     'films',
     'rest_framework',
+    'rest_framework.authtoken',  # из djoser Token Based Authentication
+    'djoser',  # из djoser Token Based Authentication
+
 ]
 
 MIDDLEWARE = [
@@ -99,13 +99,13 @@ WSGI_APPLICATION = 'bestfilmsdrf.wsgi.application'
 DATABASES = {
        "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": 'BESTFILMS',
-        "USER": 'postgres',
-        "PASSWORD": '12345',
-        "HOST": '0.0.0.0',
-        "PORT": '5432',
-        },
-    }
+        "NAME": os.getenv("POSTGRES_DB"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT"),
+        }
+        }
 
 
 # Password validation
@@ -153,10 +153,17 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'madia')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# чтобы нельзя было править из строки браузера
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES' : [
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # встроеный класс пагинации
+    'PAGE_SIZE': 3,
+    
+    'DEFAULT_RENDERER_CLASSES' : [  # чтобы нельзя было править из строки браузера
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [  # joser
+        'rest_framework.authentication.TokenAuthentication',  # аунтефикация по token
+        'rest_framework.authentication.BasicAuthentication',  # аунтефикация по сессии, по умолчанию
+        'rest_framework.authentication.SessionAuthentication',  # аунтефикация по сессии, по умолчанию
     ]
 }

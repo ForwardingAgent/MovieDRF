@@ -1,18 +1,72 @@
 from django.forms import model_to_dict
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import generics, viewsets
-from .models import Movie
+from rest_framework.viewsets import GenericViewSet
+from rest_framework import generics, viewsets, mixins
+from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from .models import Movie, Category
 from .serializers import MovieSerializer
+from .permissions import IsOwnerOrReadOnly
+# views ОБРАБОТКА ТОЛЬКО ЗАПРОСОВ А serializer ЗА ОБРАБОТКУ ДАННЫХ (чтение изменение удаление)
 
 
-# ОБРАБОТКА ТОЛЬКО ЗАПРОСОВ А serializer ЗА ОБРАБОТКУ ДАННЫХ (чтение изменение удаление)
+class LargeResultsSetPagination(PageNumberPagination):
+    page_size = 2
+    page_size_query_param = 'page_size'  # клиент может поменять кол-во записей в выдаче на странице вместо 3, но не более значения max_page_size
+    max_page_size = 10000
+
+class MovieAPIList(generics.ListCreateAPIView):
+        queryset = Movie.objects.all()
+        serializer_class = MovieSerializer
+        permission_classes = (IsAuthenticatedOrReadOnly, )
+        pagination_class = LargeResultsSetPagination  # свой класс пагинации (см. выше)
 
 
-class MovieViewSet(viewsets.ModelViewSet):  # ReadOnlyModelViewSet - не дает удалять и менять
-    queryset = Movie.objects.all()
-    serializer_class = MovieSerializer
+class MovieAPIUpdate(generics.RetrieveUpdateAPIView):
+        queryset = Movie.objects.all()
+        serializer_class = MovieSerializer
+        # permission_classes = (IsOwnerOrReadOnly, )  # собственный, из permissions.py
+        permission_classes = (IsAuthenticated, )
+        authentication_classes = (TokenAuthentication, )  # по какому варианту из сеттингс авторизироваться по сессии или по токену
 
+
+class MovieAPIDestroy(generics.RetrieveUpdateDestroyAPIView):
+        queryset = Movie.objects.all()
+        serializer_class = MovieSerializer
+        permission_classes = (IsAdminUser, )
+
+
+
+# 10
+# class MovieViewSet(mixins.CreateModelMixin,
+#                    mixins.RetrieveModelMixin,
+#                    mixins.UpdateModelMixin,
+#                    mixins.DestroyModelMixin,
+#                    mixins.ListModelMixin,
+#                    GenericViewSet):
+#     # queryset = Movie.objects.all() убираем тк в get_queryset есть, но в urls надо прописать basename=Movie
+#     serializer_class = MovieSerializer
+# 
+#     def get_queryset(self):
+#         # return Movie.objects.all()[:3]  # 3 записи из списка
+#         pk = self.kwargs.get('pk')  # для списка или одной записи
+#         if not pk:
+#             return Movie.objects.all()[:3]
+#         else:
+#             return Movie.objects.filter(pk=pk)
+# 
+#     @action(methods=['get'], detail=True)  # 9 (выводим категории) methods с какими методами работаем | detail=False возвращает список если True то одна запись
+#     def category(self, request, pk=None):
+#         cats = Category.objects.get(pk=pk)  # по pk выбираем категорию
+#         return Response({'cats': cats.name})  # по cats.name берем отдельную категорию .../api/v1/movie/4(1,2..)/category/
+
+# 9
+# class MovieViewSet(viewsets.ModelViewSet)  # ReadOnlyModelViewSet - не дает удалять и менять | в 9 заменили на mixins 
+    # queryset = Movie.objects.all()
+    # serializer_class = MovieSerializer
 
 # 8
 # class MovieAPIList(generics.ListCreateAPIView):
