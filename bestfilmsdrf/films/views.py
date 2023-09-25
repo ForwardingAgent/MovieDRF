@@ -9,7 +9,6 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, I
 from rest_framework.authentication import TokenAuthentication
 from .models import Movie, Category
 from .serializers import MovieSerializer
-from .permissions import IsOwnerOrReadOnly
 # views ОБРАБОТКА ТОЛЬКО ЗАПРОСОВ А serializer ЗА ОБРАБОТКУ ДАННЫХ (чтение изменение удаление)
 
 
