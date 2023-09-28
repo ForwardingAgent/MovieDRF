@@ -21,7 +21,7 @@ class MovieAPIList(generics.ListCreateAPIView):
         queryset = Movie.objects.all()
         serializer_class = MovieSerializer
         permission_classes = (IsAuthenticatedOrReadOnly, )
-        # pagination_class = LargeResultsSetPagination  # свой класс пагинации (см. выше)
+        pagination_class = LargeResultsSetPagination  # свой класс пагинации (см. выше)
 
 
 class MovieAPIUpdate(generics.RetrieveUpdateAPIView):
@@ -63,53 +63,55 @@ class MovieAPIDestroy(generics.RetrieveUpdateDestroyAPIView):
 #         return Response({'cats': cats.name})  # по cats.name берем отдельную категорию .../api/v1/movie/4(1,2..)/category/
 
 # 9
-# class MovieViewSet(viewsets.ModelViewSet)  # ReadOnlyModelViewSet - не дает удалять и менять | в 9 заменили на mixins 
+# 8 class MovieViewSet(viewsets.ModelViewSet)  # ModelViewSet - дает возможность ч/з роутеры полный CRUD (см. из чего состоит)) | ReadOnlyModelViewSet - не дает удалять и менять | в 9 заменили на mixins 
     # queryset = Movie.objects.all()
     # serializer_class = MovieSerializer
 
 # 8
-# class MovieAPIList(generics.ListCreateAPIView):
+# 7 class MovieAPIList(generics.ListCreateAPIView):  MovieAPIList c ListCreateAPIView теперь и отдает по GET и добавляет по POST
 #     queryset = Movie.objects.all()
 #     serializer_class = MovieSerializer
 # 
 # 
 # class MovieAPIUpdate(generics.UpdateAPIView):
-#     queryset = Movie.objects.all()  # ленивый запрос, выбирается только одна конкретная запись
+#     queryset = Movie.objects.all()  # ленивый запрос, выбирается только одна конкретная запись которая приходит с адреса path('api/v1/movie/<int:pk>/', MovieAPIUpdate.as_view()),
 #     serializer_class = MovieSerializer
 # 
 # 
-# class MovieAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Movie.objects.all()  # ленивый запрос, выбирается только одна конкретная запись
+# 7 ниже один вариант класса для всех функций CRUD с url: path('api/v1/moviedetail/<int:pk>/', MovieAPIDetailView.as_view())
+# class MovieAPIDetailView(generics.RetrieveUpdateDestroyAPIView):  RetrieveUpdateDestroyAPIView все функции CRUD
+#     queryset = Movie.objects.all()  # ленивый запрос, выбирается только одна конкретная запись которая приходит с адреса 'api/v1/moviedetail/<int:pk>'
 #     serializer_class = MovieSerializer
 
 
 # 7 
-# class MovieAPIView(APIView):
+# class MovieAPIView(APIView):  APIView базовый класс, во главе всех классов представления DRF
 #     def get(self, request):
-#         # lst = Movie.objects.all().values() - values возвращает словарь
+#         # lst = Movie.objects.all().values() - values возвращает словарь | в 4/15.0 убрал
 #         lst = Movie.objects.all()
-#         return Response({'posts': MovieSerializer(lst, many=True).data})  # 4/15.0 lst - весь список статей | many - то что MovieSerializer надо обработать не одну запись а список записей и сл-но выдавать тоже список | data - словарь из табл. Movie 
+#         return Response({'posts': MovieSerializer(lst, many=True).data})  # 4/15.0 lst - весь список статей 
+#         # many - то что MovieSerializer надо обработать не одну запись а список записей и сл-но выдавать тоже список | data - словарь из табл. Movie 
 #     
 #     def post(self, request):
 #         serializer = MovieSerializer(data=request.data)  # преобразовывает входные данные в объект сериализатор 
-#         serializer.is_valid(raise_exception=True)  #  проверяем и если ошибка, то отправляем обратно какие поля обязательны, а не 404
-#         serializer.save()  # прихоит из serializers из create и тут сохраняется в бд
+#         serializer.is_valid(raise_exception=True)  #  проверяем (с полями сериалайзера, которые он взял из модели) и если ошибка, то отправляем обратно какие поля обязательны, а не 404
+#         serializer.save()  # приходит из serializers из create и тут сохраняется в бд
 #         return Response({'post': serializer.data})  # data ссылается на новый созданный объект serializer, его не надо создавать MovieSerializer(post_new)
 #         
 # 
 #     def put(self, request, *args, **kwargs):
-#         pk = kwargs.get('pk', None)  # проверяем наличие ключа
+#         pk = kwargs.get('pk', None)  # проверяем наличие ключа если есть-берем, если нет-возвращаем None
 #         if not pk:
 #             return Response({"error": "Method PUT not allowed"})
 #         
 #         try:
-#             instance = Movie.objects.get(pk=pk)  # проверяем наличие значения
+#             instance = Movie.objects.get(pk=pk)  # проверяем наличие значения (записи)
 #         except:
 #             return Response({"error": "Object does not exists"})
 #         
 #         serializer = MovieSerializer(data=request.data, instance=instance)  # преобразовывает входные данные в объект сериализатор 
 #         serializer.is_valid(raise_exception=True)  #  проверяем и если ошибка, то отправляем обратно какие поля обязательны, а не 404
-#         serializer.save() # при создании 2 параметров MovieSerializer(data=request.data, instance=instance) автоматом вызывается def update(instance, data) в serializer.py
+#         serializer.save() # при создании 2 параметров MovieSerializer(data=request.data, instance=instance) автоматом вызывается def update(instance, data) в serializer.py тк есть instance и data
 #         return Response({'post': serializer.data})  # data ссылается на новый созданный объект serializer, его не надо создавать MovieSerializer(post_new)
 # 
 # 
@@ -126,9 +128,10 @@ class MovieAPIDestroy(generics.RetrieveUpdateDestroyAPIView):
 #             
 #             return Response({'post': "delete post" + str(pk)})  
 # 
-
-        # post_new = Movie.objects.create(
-        #   title=request.data['title'],
-        #   content= и тд...
-        # )
-        # return Response({'post': MovieSerializer(post_new).data})  # model_to_dict - преобразовывает объект в словарь
+        # def post(self, request):
+        #   post_new = Movie.objects.create(
+        #     title=request.data['title'],
+        #     content=request.data['content'],
+        #     cat_id=request.data['cat_id']
+        #   )
+        #   return Response({'post': MovieSerializer(post_new).data})  # model_to_dict - преобразовывает объект в словарь

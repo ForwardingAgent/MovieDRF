@@ -155,8 +155,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
-    #'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # встроеный класс пагинации
-    #'PAGE_SIZE': 3,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # встроеный класс пагинации
+    'PAGE_SIZE': 3,
     
     'DEFAULT_RENDERER_CLASSES' : [  # чтобы нельзя было править из строки браузера
         'rest_framework.renderers.JSONRenderer',

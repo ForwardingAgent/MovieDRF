@@ -38,10 +38,12 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
 
-    # 10 path('api/v1/', include(router.urls)),  # 8 include - включаем все маршруты которые находятся в urls, они генерируются в router.register(r'movie', MovieViewSet)
-    # выше формируется http://127.....api/v1/movie/  movie из router
-    # path('api/v1/movielist/', MovieViewSet.as_view({'get': 'list'})),  #  list и put в документации
-    # path('api/v1/movielist/<int:pk>/', MovieViewSet.as_view({'put': 'update'})),
+    # 10 
+    # 8 path('api/v1/', include(router.urls)),  # 8 include - включаем все маршруты которые находятся в urls, они генерируются в router.register(r'movie', MovieViewSet)
+    # выше формируется http://127.....api/v1/movie/  movie из router и этот маршрут выдат и список всех записей и ниже форму для добавления новой
+    # можно добавить число http://127.....api/v1/movie/9/ и выдаст одну статью и возможность ее изменить и удалить
+    # 8 path('api/v1/movielist/', MovieViewSet.as_view({'get': 'list'})),  #  list и put в документации viewsets actions
+    # 8 path('api/v1/movielist/<int:pk>/', MovieViewSet.as_view({'put': 'update'})),
 ]
 
 if settings.DEBUG:  # DEBUG == True:

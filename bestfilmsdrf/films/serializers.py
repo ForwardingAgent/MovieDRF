@@ -11,6 +11,7 @@ class MovieSerializer(serializers.ModelSerializer):  # ModelSerializer сери�
         model = Movie
         fields = ("id", "title", "content", "cat")  # если все поля из бд вернуть то fields = "__all__"
 
+# 6
 # class MovieSerializer(serializers.Serializer): 
 #     title = serializers.CharField(max_length=255)
 #     content = serializers.CharField()
@@ -41,21 +42,26 @@ class MovieSerializer(serializers.ModelSerializer):  # ModelSerializer сери�
 #         return instance
 
 
-# class MovieModel:
+# 4
+# class MovieModel:  - используем для примера вместо класса в model.py
 #     def __init__(self, title, content) -> None:
 #         self.title = title
 #         self.content = content
+
+# class MovieSerializer(serializers.Serializer): 
+#     title = serializers.CharField(max_length=255) - атрибуты (title, content...) должны быть с теми же именами что и локальные св-ва в объектах класса MovieModel
+#     content = serializers.CharField()
 #
 # def encode():
 #     model = MovieModel('Зеленая миля', 'Content: Зеленая миля')
-#     model_serial = MovieSerializer(model)
-#     print(model_serial.data, type(model_serial.data), sep='\n')
-#     json = JSONRenderer().render(model_serial.data)  # JSONRenderer преобразует объект сериализации в json-строку
+#     model_serial = MovieSerializer(model) - пропускаем объект model через сериалайзер | отрабатывает особенный класс который вместо атрибутов (title, content в MovieSerializer) создает data (словарь dict) состоящую из свойств локальных атрибутов 
+#     print(model_serial.data, type(model_serial.data), sep='\n')  - data это сериализованные данные
+#     json = JSONRenderer().render(model_serial.data)  - JSONRenderer преобразует объект сериализации model_serial в БАЙТОВУЮ json-строку
 #     print(json)
 # 
 # def decode():
-#     stream = io.BytesIO(b'{"title":"Shrek", "content":"Content: Shrek"}')
-#     data = JSONParser().parse(stream)
-#     serializer = MovieSerializer(data=data)
+#     stream = io.BytesIO(b'{"title":"Shrek", "content":"Content: Shrek"}')  - типа запрос от клиента
+#     data = JSONParser().parse(stream)  -  создаем объект класса JSONParser
+#     serializer = MovieSerializer(data=data)  -  именованный параметр data
 #     serializer.is_valid()
 #     print(serializer.validated_data)
