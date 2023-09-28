@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',  # из djoser Token Based Authentication
     'djoser',  # из djoser Token Based Authentication
+    'drf_spectacular'  # документация
 
 ]
 
@@ -154,8 +155,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # встроеный класс пагинации
-    'PAGE_SIZE': 3,
+    #'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # встроеный класс пагинации
+    #'PAGE_SIZE': 3,
     
     'DEFAULT_RENDERER_CLASSES' : [  # чтобы нельзя было править из строки браузера
         'rest_framework.renderers.JSONRenderer',
@@ -165,5 +166,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',  # аунтефикация по token
         'rest_framework.authentication.BasicAuthentication',  # аунтефикация по сессии, по умолчанию
         'rest_framework.authentication.SessionAuthentication',  # аунтефикация по сессии, по умолчанию
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',  # документация
 }

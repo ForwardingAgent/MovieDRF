@@ -21,7 +21,7 @@ class MovieAPIList(generics.ListCreateAPIView):
         queryset = Movie.objects.all()
         serializer_class = MovieSerializer
         permission_classes = (IsAuthenticatedOrReadOnly, )
-        pagination_class = LargeResultsSetPagination  # свой класс пагинации (см. выше)
+        # pagination_class = LargeResultsSetPagination  # свой класс пагинации (см. выше)
 
 
 class MovieAPIUpdate(generics.RetrieveUpdateAPIView):
