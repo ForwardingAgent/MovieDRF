@@ -33,10 +33,10 @@ urlpatterns = [
     path('api/v1/movie/', MovieAPIList.as_view()),
     path('api/v1/movie/<int:pk>/', MovieAPIUpdate.as_view()),
     path('api/v1/moviedelete/<int:pk>/', MovieAPIDestroy.as_view()),
-    #path(r'api/v1/auth/', include('djoser.urls')),  # djoser какие варианты есть в Base Endpoints
-    #re_path(r'^auth/', include('djoser.urls.authtoken')),  # djoser авторизация по token
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
+    #path(r'api/v1/auth/', include('djoser.urls')),  # djoser 
+    #re_path(r'^auth/', include('djoser.urls.authtoken')),  # djoser авторизация по token | какие варианты работы c user это есть в djoser-Base Endpoints
+    path('api/v1/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/v1/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
 
     # 10 
     # 8 path('api/v1/', include(router.urls)),  # 8 include - включаем все маршруты которые находятся в urls, они генерируются в router.register(r'movie', MovieViewSet)

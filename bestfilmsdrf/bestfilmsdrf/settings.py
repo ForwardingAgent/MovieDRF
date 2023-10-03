@@ -164,7 +164,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [  # joser
         'rest_framework.authentication.TokenAuthentication',  # аунтефикация по token
-        'rest_framework.authentication.BasicAuthentication',  # аунтефикация по сессии, по умолчанию
+        'rest_framework.authentication.BasicAuthentication',  # аунтефикация базовая от django по умолчанию
         'rest_framework.authentication.SessionAuthentication',  # аунтефикация по сессии, по умолчанию
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',  # документация
