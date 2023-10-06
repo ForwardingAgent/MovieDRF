@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
@@ -52,6 +52,9 @@ INSTALLED_APPS = [
 
 ]
 
+# При указании связующего программного обеспечения в списке MIDDLEWARE 
+# из модуля settings.py необходимо соблюдать порядок СВЕРХУ ВНИЗ! 
+# Порядок вызова Middleware важен для правильной работы приложений, уделяйте внимание соответствующим указаниям из документации библиотек Django, которые вы подключаете к своему проекту.
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -162,10 +165,29 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
+    # 'DEFAULT_PERMISSION_CLASSES': [  # эндпоинты только для авторизированых
+    #     'rest_framework.permission.IsAuthenticated'
+    # ],
     'DEFAULT_AUTHENTICATION_CLASSES': [  # joser
-        'rest_framework.authentication.TokenAuthentication',  # аунтефикация по token
+        # 'rest_framework.authentication.TokenAuthentication',  # аунтефикация по token
         'rest_framework.authentication.BasicAuthentication',  # аунтефикация базовая от django по умолчанию
-        'rest_framework.authentication.SessionAuthentication',  # аунтефикация по сессии, по умолчанию
+        # 'rest_framework.authentication.SessionAuthentication',  # аунтефикация по сессии, по умолчанию
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',  # документация
 }
+
+SPECTACULAR_SETTINGS = {  # 004 1.23 Marsh отдельные файлы urls и config в приложении api для  SPECTACULAR
+    'TITLE': 'BestFilms',
+    'DESCRIPTION': 'Best films with DRF',
+    'VERSION': '1.0.0',
+    'SERVE_PERMISSIONS': [
+        'rest_framework.permissions.IsAuthenticated'  # доступ толкько авторизованному
+    ],
+    'SERVE_AUTHENTICATION': [
+        'rest_framework.authentication.BasicAuthentication'
+    ],
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
+#  добавить settings для Joser и JWT
+# от Marsh 004

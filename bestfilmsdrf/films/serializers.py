@@ -2,14 +2,21 @@ import io
 from rest_framework import serializers
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
-from .models import Movie
+from .models import Movie, Category
 # ОБРАБОТКА ЗАПРОСОВ В views.py А serializer ЗА ОБРАБОТКУ ДАННЫХ (чтение изменение удаление)
 
 
 class MovieSerializer(serializers.ModelSerializer):  # ModelSerializer сериал-р который работает с моделями (берет из БД преобразует в json и отправляет в ответ на запросу)
     class Meta:
         model = Movie
-        fields = ("id", "title", "content", "cat")  # если все поля из бд вернуть то fields = "__all__"
+        fields = ("user", "title", "content", "cat")  # если все поля из бд вернуть то fields = "__all__"
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ("id", "name")
+
 
 # 6
 # class MovieSerializer(serializers.Serializer): 

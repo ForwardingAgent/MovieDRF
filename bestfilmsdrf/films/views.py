@@ -2,40 +2,93 @@ from django.forms import model_to_dict
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
-from rest_framework import generics, viewsets, mixins
+from rest_framework import generics, viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.authentication import TokenAuthentication
 from .models import Movie, Category
-from .serializers import MovieSerializer
+from .serializers import MovieSerializer, CategorySerializer
+
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiResponse, OpenApiParameter, OpenApiExample
+from drf_spectacular.types import OpenApiTypes
 # views ОБРАБОТКА ТОЛЬКО ЗАПРОСОВ А serializer ЗА ОБРАБОТКУ ДАННЫХ (чтение изменение удаление)
 
 
 class LargeResultsSetPagination(PageNumberPagination):
-    page_size = 2
-    page_size_query_param = 'page_size'  # клиент может поменять кол-во записей в выдаче на странице вместо 3, но не более значения max_page_size
-    max_page_size = 10000
+        # page_size = 5
+        page_size_query_param = "page_size" # 'page_size/записей на странице'  # клиент может поменять кол-во записей в выдаче на странице вместо 3, но не более значения max_page_size
+        max_page_size = 1000
+
+        def get_paginated_response(self, data):
+                return Response({
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link(),
+                'count': self.page.paginator.count,
+                'pages': self.page.paginator.num_pages,
+                'results': data
+                })
+
+@extend_schema_view(
+        get=extend_schema(description="Here you can get a list of Movies. 'page' - Номер страницы из списка; 'page_size' - Количество фильмов на странице", summary="Get Movie", tags=["Movie"]),
+        post=extend_schema(description="Here you can add a Movie", summary="Post Movie", tags=["Movie"]),
+)
 
 class MovieAPIList(generics.ListCreateAPIView):
         queryset = Movie.objects.all()
         serializer_class = MovieSerializer
-        permission_classes = (IsAuthenticatedOrReadOnly, )
+        permission_classes = (IsAuthenticated, )
         pagination_class = LargeResultsSetPagination  # свой класс пагинации (см. выше)
 
+
+@extend_schema_view(
+        get=extend_schema(description="Here you can get a list of Categories", summary="Get Categories", tags=["Categories"]),
+        post=extend_schema(description="Here you can add a Category", summary="Post Category", tags=["Categories"]),
+)
+
+class CategoryAPIList(generics.ListCreateAPIView):
+        queryset = Category.objects.all()
+        serializer_class = CategorySerializer
+        # permission_classes = (IsOwnerOrReadOnly, )  # собственный, из permissions.py
+        permission_classes = (IsAuthenticated, )
+        pagination_class = LargeResultsSetPagination  # свой класс пагинации (см. выше)
+
+@extend_schema_view(
+        get=extend_schema(description="Here you can get a list of Categories", summary="Get Categories", tags=["Categories"]),
+        put=extend_schema(description="Here you can update a Category", summary="Put a Category", tags=["Categories"]),
+        patch=extend_schema(description="Here you can change a Category", summary="Patch a Category", tags=["Categories"]),
+)
+
+class CategoryAPIUpdate(generics.RetrieveUpdateAPIView):
+        queryset = Category.objects.all()
+        serializer_class = CategorySerializer
+        # permission_classes = (IsOwnerOrReadOnly, )  # собственный, из permissions.py
+        permission_classes = (IsAuthenticated, )
+        pagination_class = LargeResultsSetPagination  # свой класс пагинации (см. выше)
+
+@extend_schema_view(
+        get=extend_schema(summary="Get Movie!", tags=["Movie"]),
+        put=extend_schema(summary="Put Movie!", tags=["Movie"]),
+        patch=extend_schema(summary="Patch Movie!", tags=["Movie"]),
+)
 
 class MovieAPIUpdate(generics.RetrieveUpdateAPIView):
         queryset = Movie.objects.all()
         serializer_class = MovieSerializer
         # permission_classes = (IsOwnerOrReadOnly, )  # собственный, из permissions.py
         permission_classes = (IsAuthenticated, )
-        authentication_classes = (TokenAuthentication, )  # по какому варианту из сеттингс авторизироваться по сессии или по токену
+        #authentication_classes = (TokenAuthentication, )  # по какому варианту из сеттингс авторизироваться по сессии или по токену
 
-
-class MovieAPIDestroy(generics.RetrieveUpdateDestroyAPIView):
-        queryset = Movie.objects.all()
-        serializer_class = MovieSerializer
-        permission_classes = (IsAdminUser, )
+# @extend_schema_view(
+#         get=extend_schema(description="Тут описание", summary="Get Movie", tags=["Movie"]),
+#         put=extend_schema(summary="Put Movie", tags=["Movie"]),
+#         patch=extend_schema(summary="Patch Movie", tags=["Movie"]),
+#         delete=extend_schema(summary="Delete Movie", tags=["Movie"]),
+# )
+# class MovieAPIDestroy(generics.RetrieveUpdateDestroyAPIView): один класс для 4 методов
+#         queryset = Movie.objects.all()
+#         serializer_class = MovieSerializer
+#         permission_classes = (IsAdminUser, )
 
 
 
